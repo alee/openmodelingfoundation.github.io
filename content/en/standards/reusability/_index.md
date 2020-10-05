@@ -1,10 +1,10 @@
 ---
-title: Reproducibility
-linkTitle: Reproducibility
+title: Reusability
+linkTitle: Reusability
 cascade:
-  type: reproducibility
-  github_issue_filter: "label:\"standards - reproducibility\""
-  github_issue_template: reproducibility.md
+  type: Reusability
+  github_issue_filter: "label:\"standards - reusability\""
+  github_issue_template: reusability.md
 weight: 2
 ---
 
