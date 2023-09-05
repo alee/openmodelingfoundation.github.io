@@ -1,8 +1,8 @@
-ARG HUGO_VERSION=0.107.0
+ARG HUGO_VERSION=0.111.3
 ARG DIST_TAG=-ext-ubuntu
 FROM klakegg/hugo:${HUGO_VERSION}${DIST_TAG}
 
-ARG DOCSY_VERSION=v0.6.0
+ARG DOCSY_VERSION=v0.7.1
 
 LABEL maintainer="CoMSES Net <support@comses.net>"
 

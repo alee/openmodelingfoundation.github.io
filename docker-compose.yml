@@ -1,6 +1,6 @@
 services:
   hugo:
-    image: openmodelingfoundation/omf:latest
+    image: omf/web:latest
     build:
       context: .
       args:
