@@ -58,3 +58,6 @@ tmp/checks/
 
 # Exported CI Docker layers
 .buildx-cache*/
+
+# Bibliography data is regenerated in the mounted workspace.
+data/publications.json

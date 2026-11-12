@@ -29,6 +29,7 @@ Prefer `make` targets. Use Docker Compose directly only when debugging the build
 | Production-style render | `make render` |
 | Render while another Hugo container is running | `make render-site-isolated` |
 | Regenerate publications JSON from BibTeX | `make publications-json` |
+| Test generated content | `make content-test` |
 | Verify preserved standard editions | `make standards-check` |
 | CI-equivalent production build | `.github/scripts/build-site.sh` |
 
@@ -55,5 +56,6 @@ Use Hugo URL helpers (`relURL`, `absURL`) in templates. Do not hardcode root-rel
 ## Validation
 
 - Standard editions: follow [the edition maintenance guide](docs/documentation-standard-page.md) and run `make standards-check` before rendering.
-- Bibliography changes: run `make publications-json` and confirm entry counts match the `.bib` source. Malformed BibTeX entries are silently dropped, not errored.
+- Preview and production builds prepare bibliography JSON in the mounted workspace; see [generated content](docs/generated-content.md).
+- Bibliography changes during a live preview: run `make publications-json` and confirm entry counts match the `.bib` source. Failed BibTeX blocks produce a warning and are omitted; compare the generated records with intended entries.
 - Rendering or template changes: run `make render` and check `public/` directly, or use `make render-site-isolated` if a Hugo container is running. A successful exit code does not guarantee content is present (see module mounts gotcha above).

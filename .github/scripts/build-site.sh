@@ -31,6 +31,9 @@ require_absolute_path() {
 require_absolute_path "$HUGO_CACHEDIR" HUGO_CACHEDIR
 require_absolute_path "$OUTPUT_DIR" OUTPUT_DIR
 
+# Regenerate bibliography data in this workspace before Hugo reads it.
+sh .github/scripts/prepare-content.sh
+
 # Preserve edition integrity before publishing any generated pages.
 python3 .github/scripts/check_standard_archives.py
 
@@ -59,4 +62,5 @@ if [ -n "$BASE_URL" ]; then
 fi
 
 echo "Running: hugo $*" >&2
-exec hugo "$@"
+hugo "$@"
+python3 -B .github/scripts/check_generated_content.py "$OUTPUT_DIR" --base-url "${BASE_URL:-/}"

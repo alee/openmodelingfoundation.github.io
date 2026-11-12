@@ -87,7 +87,7 @@ standards-check:
 
 ## publications-json: generate Hugo data/publications.json from BibTeX.
 publications-json : build
-	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'uv run .github/scripts/bibtex_to_json.py --input "$(PUBLICATIONS_BIB_PATH)" --output "$(PUBLICATIONS_JSON_PATH)"'
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) -e PUBLICATIONS_BIB_PATH="$(PUBLICATIONS_BIB_PATH)" -e PUBLICATIONS_JSON_PATH="$(PUBLICATIONS_JSON_PATH)" $(HUGO_SERVICE) -c 'sh .github/scripts/prepare-content.sh'
 
 ## deps-docsy       : update the Docsy Hugo module; set DOCSY_VERSION=vX.Y.Z.
 deps-docsy :
@@ -106,9 +106,14 @@ deps-lock :
 deps-fonts :
 	$(HUGO_RUN_SH) $(HUGO_SERVICE) -c 'apk add --no-cache bash curl openssl su-exec && su-exec "$(UID):$(GID)" env HOME=/tmp npm_config_cache=/tmp/.npm bash .github/scripts/download-fonts.sh'
 
+.PHONY: content-test
+## content-test     : test bibliography preparation after workspace mounts.
+content-test:
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B .github/scripts/test_content_preparation.py'
+
 ## shell            : open a hugo shell
 shell : build
-	$(DOCKER_COMPOSE) run --rm --no-deps $(HUGO_SERVICE) shell
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE)
 
 ## stop             : stop the docker server and clean up
 stop :

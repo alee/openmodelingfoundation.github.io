@@ -35,9 +35,6 @@ jobs:
       - name: Prepare cached build
         uses: ./.github/actions/prepare-build
 
-      - name: Generate Hugo data from BibTeX
-        run: make -o build publications-json
-
       - name: Render site
         env:
           RENDER_BASE_URL: ${{ steps.pages.outputs.base_url }}

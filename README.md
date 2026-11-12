@@ -36,7 +36,7 @@ This GitHub pages site is generated with [hugo](https://gohugo.io) using the [do
 
 ### Setup
 
-To create a local setup of this site you can install `Docker` and `docker-compose` or `hugo` and `npm` on your local operating system.
+The supported local workflow uses Docker and Docker Compose.
 
 Clone this repository via `git clone --recurse-submodules -j8 https://github.com/openmodelingfoundation/openmodelingfoundation.github.io.git`
 
@@ -72,17 +72,9 @@ The shared build script used by CI workflows and `make render` is:
 .github/scripts/build-site.sh
 ```
 
-#### Install hugo and npm locally
+### Generated bibliography
 
-If you don't have docker installed and don't mind installing things in your operating system, you can do the following:
-
-- Install the extended version of hugo from the [releases page](https://github.com/gohugoio/hugo/releases).
-- Install npm via your operating system's package manager or from the [npm site](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
-- Use hugo commands and npm to build/render the site.
-
-```bash
-% npm install
-% hugo serve     # dev server without drafts
-# OR
-% hugo serve -D  # dev server with drafts
-```
+The container workflows regenerate bibliography JSON in the active workspace
+before preview startup and production rendering. See [generated content](docs/generated-content.md)
+for preparation and validation. Starting Hugo directly bypasses this step; use
+the documented container commands for a complete site preview.

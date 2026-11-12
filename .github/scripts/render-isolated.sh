@@ -36,7 +36,7 @@ run_logged() {
 # Keep host dependencies, caches, reports and server locks out of the build.
 mkdir "$workspace/src"
 tar --exclude='./.buildx-cache*' --exclude=./node_modules --exclude=./.hugo_cache --exclude=./tmp \
-    --exclude=./public --exclude=./resources --exclude=./.hugo_build.lock \
+    --exclude=./data/publications.json --exclude=./public --exclude=./resources --exclude=./.hugo_build.lock \
     -cf "$workspace/source.tar" .
 tar -xf "$workspace/source.tar" -C "$workspace/src"
 cd "$workspace/src"
