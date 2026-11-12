@@ -26,9 +26,9 @@ jobs:
       - name: Check internal HTML
         run: make -o build html-check
 
-      - name: Check archive and generated content tests
+      - name: Check archive, generated content and dependency tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: make -o build standards-test check-tests content-test
+        run: make -o build standards-test check-tests content-test deps-test
 
       - name: Check rendered navigation and downloads
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}

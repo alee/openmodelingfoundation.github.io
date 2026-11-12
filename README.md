@@ -59,6 +59,12 @@ The preview uses an image-populated dependency volume at `/src/node_modules`.
 so stale host packages cannot shadow the image's Bootstrap or Font Awesome
 files. The host `node_modules` directory is left untouched.
 
+Make passes your UID/GID to Compose, so preview and maintenance containers write
+workspace files as your user. Hugo uses `.hugo_cache/`; home and npm caches use
+the container's `/tmp`. Run `make serve` again to recreate an older preview with
+these settings. See [dependency maintenance](docs/dependency-upgrades.md) for
+lockfile updates and handling files created by older containers.
+
 Run the local production-style render path (equivalent to the CI shared build entrypoint):
 
 ```

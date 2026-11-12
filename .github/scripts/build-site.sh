@@ -42,7 +42,7 @@ mkdir -p "$HUGO_CACHEDIR" "$OUTPUT_DIR" "$npm_config_cache"
 git config --global --add safe.directory /src
 git config --global core.quotepath false
 
-# Docsy 0.17.0 theme module mounts expect node_modules/ at the project root
+# Docsy theme module mounts expect node_modules/ at the project root
 # (e.g. node_modules/bootstrap -> assets/vendor/bootstrap).  PostCSS tooling
 # and theme dependencies live in the image-populated /src/node_modules volume.
 # Isolated builds need a link from their disposable project root.

@@ -7,7 +7,7 @@ Use this procedure for a coordinated Hugo, Docsy, and JavaScript upgrade. For a 
 | Dependency | Authoritative source | Generated or installed result |
 | --- | --- | --- |
 | Hugo | `.env` (`HUGO_VERSION`) for Compose; Dockerfile `ARG HUGO_VERSION` for its standalone default | Docker base image |
-| Docsy | `go.mod`, imported as `github.com/google/docsy/theme` in `hugo.yaml` | `go.sum`; Hugo module cache |
+| Docsy | `go.mod`, imported as `github.com/docsy/docsy/theme` in `hugo.yaml` | `go.sum`; Hugo module cache |
 | Site JavaScript and CSS tools | Root `package.json` | Root `package-lock.json`; `/src/node_modules` in the image |
 | JavaScript requested by Hugo modules | Module manifests, consolidated by `hugo mod npm pack` | `packages/hugoautogen/{package.json,hugo_packagemeta.json}` and root `package-lock.json` |
 | Container tools | Dockerfile base image and `UV_VERSION`; Alpine `apk add` packages | Docker image |
@@ -16,6 +16,8 @@ Use this procedure for a coordinated Hugo, Docsy, and JavaScript upgrade. For a 
 | GitHub Actions and other CI tools | Pinned `uses:` commits in `.github/workflows/` | GitHub-hosted jobs |
 
 The root package currently pins Bootstrap and Font Awesome directly. Those declarations take precedence over matching module dependencies, so `packages/hugoautogen/package.json` can legitimately have empty dependency objects. **Keep the workspace and its metadata:** Hugo regenerates them and uses the metadata to detect changes in module dependencies. Do not hand-edit either generated file. [Hugo explains the workspace and precedence rules](https://gohugo.io/hugo-modules/nodejs-dependencies/).
+
+**Keep `package-lock.json` committed.** The Dockerfile uses `npm ci`, which requires a synchronized lockfile and installs its resolved dependency tree, including transitive dependencies. A container recipe alone does not fix versions resolved from npm ranges. Regenerate the lockfile with `make deps-lock`; keep `npm ci` in the image build. See [npm's clean-install documentation](https://docs.npmjs.com/cli/v11/commands/npm-ci/).
 
 ## Before editing
 
@@ -27,7 +29,7 @@ The root package currently pins Bootstrap and Font Awesome directly. Those decla
 ## Update Hugo and Docsy
 
 1. If upgrading Hugo, set `HUGO_VERSION` in `.env` and the Dockerfile default `ARG HUGO_VERSION` to the same tag. Run `make build` **now, before editing `package.json`**. Check that the target Hugo image is available and meets Docsy's requirements. This gives subsequent Make targets the new Hugo executable.
-2. Update Docsy's Hugo module with `make deps-docsy DOCSY_VERSION=vX.Y.Z`. Use the exact target version rather than an unrestricted `-u`. This updates `go.mod` and `go.sum`. Set `DOCSY_VERSION` in `.env` to the same version; it is a tracking value, not the Go module pin. Check that `hugo.yaml` still imports `github.com/google/docsy/theme` and apply any release-specific config or override migrations.
+2. Update Docsy's Hugo module with `make deps-docsy DOCSY_VERSION=vX.Y.Z`. Use the exact target version rather than an unrestricted `-u`. This updates `go.mod` and `go.sum` and tidies unused module requirements. Set `DOCSY_VERSION` in `.env` to the same version; it is a tracking value, not the Go module pin. Check that `hugo.yaml` imports `github.com/docsy/docsy/theme` and apply any release-specific config or override migrations. Docsy 0.18 moved from `github.com/google/docsy/theme`; change the import before updating and tidying the module.
 3. Review changes to `layouts/`, `assets/scss/`, shortcodes, icons, and the Sass toolchain against the Docsy release notes. In particular, a successful render does not prove that an overridden selector or icon still works.
 
 For a Docsy-only upgrade, use the image built in **Before editing**. If the target Docsy requires a newer Hugo, upgrade Hugo first.
@@ -36,7 +38,7 @@ For a Docsy-only upgrade, use the image built in **Before editing**. If the targ
 
 1. Change direct package versions in root `package.json`, including PostCSS, Bootstrap, Font Awesome, and `sass-embedded` when their compatibility requirements call for it. Distinguish the direct pins from transitive entries in `package-lock.json`; do not edit the lockfile by hand. Confirm that the Dockerfile's `sass` executable link still points to the required Dart Sass implementation after changing Sass packages.
 2. Run `make deps-pack` after changing Docsy **or** root `package.json`. This refreshes Hugo's generated npm workspace and checksum. Inspect `packages/hugoautogen/package.json`: module requirements may be empty because root versions override them, but a later Docsy release may add packages.
-3. Run `make deps-lock` to resolve the full workspace and write `package-lock.json`. Review the resulting dependency and integrity changes. This target updates the lockfile without running package install scripts; the final image build still performs `npm ci`.
+3. Run `make deps-lock` to resolve the full workspace and write `package-lock.json`. Review the resulting dependency and integrity changes. This target resolves copies of the manifests in a temporary workspace, without touching the image-owned `node_modules` volume or running package install scripts. It copies the lockfile back only after successful resolution; the final image build still performs `npm ci`.
 4. Run `make build`. Its `npm ci` checks that the manifest and lockfile agree and installs the dependencies used for site rendering. If this fails, fix the manifest or lockfile in the existing image with `make deps-pack` and `make deps-lock`, then rebuild. Do not weaken `npm ci` to `npm install` in the Dockerfile.
 
 For a JavaScript-only update, start with the existing image, then do this section. For a lockfile-only refresh, leave direct package versions unchanged and run `make deps-lock` followed by `make build`.
@@ -48,6 +50,10 @@ For a JavaScript-only update, start with the existing image, then do this sectio
 - **GitHub Actions:** Update each workflow's action commit SHA and accompanying version comment together. Review the action's release notes and run the affected workflow. Workflow actions and the separate `yarn install` path in `count-votes.yml` are not installed by the Hugo image or represented in `package-lock.json`.
 
 ## Validate and finish
+
+Run `make deps-test content-test standards-check` before rendering. The dependency
+tests verify lockfile updates with a read-only installed dependency tree and
+preservation of the existing lockfile when resolution fails.
 
 1. Run `make render`, or `make render-site-isolated` if a Hugo server is running. Inspect `public/` directly: check pages, the compiled CSS and JavaScript, `/webfonts/`, self-hosted fonts, and copied static assets. Hugo can exit successfully while a mount omission leaves assets missing.
 2. Open the home page, a standards page, and a page using a custom shortcode. Check navigation, search, icons, breadcrumbs, responsive layout, and browser console/network errors. Repeat release-specific Docsy checks. For a Pages base-path change, also test the actual deployment base URL.
@@ -62,6 +68,15 @@ Node and npm run inside the Hugo container. Dependencies are installed once at
 `/src/node_modules`; Compose populates an anonymous volume from the image to hide
 host packages. `make serve` renews that volume after rebuilding. Isolated checks
 link their temporary source tree to the same container dependency directory.
+
+Make exports the host UID/GID as `LOCAL_UID` and `LOCAL_GID`; Compose uses that
+identity for previews and maintenance commands. Writable home and npm caches live
+under `/tmp`, and Hugo uses `/src/.hugo_cache`. The root image-build user owns
+installed dependencies, which runtime commands only read. Run dependency changes
+through the Make targets so lockfile generation stays outside that installed tree.
+Containers started before this configuration change must be recreated with
+`make serve`; existing files owned by another identity may need a one-time,
+targeted ownership repair. Do not run recursive ownership changes on every start.
 
 Both Actions workflows use `.github/actions/prepare-build` to build once with
 `make build-ci`, then use `make -o build <target>` to reuse that image. Docker

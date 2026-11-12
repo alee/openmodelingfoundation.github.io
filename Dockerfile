@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
-ARG HUGO_VERSION=v0.166.0
-ARG UV_VERSION=0.12.5
+ARG HUGO_VERSION=v0.169.0
+ARG UV_VERSION=0.13.7
 
 # Shared tool sources.
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv

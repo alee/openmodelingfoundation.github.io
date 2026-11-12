@@ -6,6 +6,8 @@
 MAKEFILE_COMMANDS=Makefile $(wildcard *.mk)
 UID=$(shell id -u)
 GID=$(shell id -g)
+export LOCAL_UID=$(UID)
+export LOCAL_GID=$(GID)
 PROMPTS_SOURCE ?=
 export PROMPTS_SOURCE
 DOCKER_COMPOSE=docker compose $(if $(PROMPTS_SOURCE),-f docker-compose.yml -f docker-compose.preview.yml,)
@@ -94,24 +96,29 @@ publications-json : build
 ## deps-docsy       : update the Docsy Hugo module; set DOCSY_VERSION=vX.Y.Z.
 deps-docsy :
 	@test -n "$(DOCSY_VERSION)" || { echo 'Set DOCSY_VERSION=vX.Y.Z'; exit 1; }
-	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'git config --global --add safe.directory /src && hugo mod get github.com/google/docsy/theme@$(DOCSY_VERSION)'
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) -e HUGO_CACHEDIR="$(HUGO_CACHE_CONTAINER_DIR)" $(HUGO_SERVICE) -c 'git config --global --add safe.directory /src && hugo mod get github.com/docsy/docsy/theme@$(DOCSY_VERSION) && hugo mod tidy'
 
 ## deps-pack        : regenerate Hugo module npm workspace using the existing image.
 deps-pack :
-	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'git config --global --add safe.directory /src && hugo mod npm pack'
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) -e HUGO_CACHEDIR="$(HUGO_CACHE_CONTAINER_DIR)" $(HUGO_SERVICE) -c 'git config --global --add safe.directory /src && hugo mod npm pack'
 
 ## deps-lock        : update npm lockfile using the existing image.
 deps-lock :
-	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'npm install --package-lock-only --ignore-scripts --no-audit --no-fund'
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'sh .github/scripts/update-npm-lock.sh'
 
 ## deps-fonts       : regenerate pinned self-hosted fonts in the Hugo container.
 deps-fonts :
-	$(HUGO_RUN_SH) $(HUGO_SERVICE) -c 'apk add --no-cache bash curl openssl su-exec && su-exec "$(UID):$(GID)" env HOME=/tmp npm_config_cache=/tmp/.npm bash .github/scripts/download-fonts.sh'
+	$(HUGO_RUN_SH) --user 0:0 $(HUGO_SERVICE) -c 'apk add --no-cache bash curl openssl su-exec && su-exec "$(UID):$(GID)" env HOME=/tmp npm_config_cache=/tmp/.npm bash .github/scripts/download-fonts.sh'
 
 .PHONY: content-test
 ## content-test     : test Hugo prompts, bibliography preparation and README freshness.
 content-test:
 	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B -m unittest discover -s .github/scripts -p "test_*content*.py"'
+
+.PHONY: deps-test
+## deps-test        : verify isolated npm lockfile updates and failure handling.
+deps-test:
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B .github/scripts/test_dependency_tools.py'
 
 ## shell            : open a hugo shell
 shell : build

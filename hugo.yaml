@@ -3,9 +3,7 @@ title: "The Open Modeling Foundation"
 
 enableRobotsTXT: true
 
-# Hugo allows theme composition (and inheritance). The precedence is from left to right.
-# NB: disabled in favor of module settings https://www.docsy.dev/docs/updating/convert-site-to-module/
-# theme: ["github.com/google/docsy", "github.com/google/docsy/dependencies"]
+# The theme is imported as a Hugo module below.
 
 # Will give values to .Lastmod etc.
 enableGitInfo: true
@@ -31,7 +29,7 @@ module:
     extended: true
     min: "0.160.1"
   imports:
-    - path: "github.com/google/docsy/theme"
+    - path: "github.com/docsy/docsy/theme"
       disable: false
   mounts:
   # mount ISSUE_TEMPLATE to content/issue_templates to re-use the templates in the site

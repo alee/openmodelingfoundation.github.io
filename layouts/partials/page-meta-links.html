@@ -1,4 +1,4 @@
-{{ if in (slice "standard" "standard-history") .Params.layout }}
+{{ if in (slice "standard" "standard-history") .Layout }}
   <div class="td-page-meta ms-2 pb-1 pt-2 mb-0 mt-auto">
     {{ with .Params.discussion_url }}<a href="{{ . }}">{{ if $.Params.archived }}Read the review discussion{{ else }}Give feedback on GitHub{{ end }}</a>{{ end }}
     {{ with .Params.rfc_url }}<a href="{{ . }}">View source RFC</a>{{ end }}

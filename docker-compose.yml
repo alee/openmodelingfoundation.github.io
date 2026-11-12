@@ -8,6 +8,11 @@ services:
     ports:
       - "127.0.0.1:1313:1313"
     working_dir: /src
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    environment:
+      HOME: /tmp
+      npm_config_cache: /tmp/.npm
+      HUGO_CACHEDIR: /src/.hugo_cache
     volumes:
       - .:/src
       # Hide stale host packages with image-built dependencies.

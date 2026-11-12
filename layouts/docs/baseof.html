@@ -16,7 +16,7 @@
           </aside>
           {{/* Standard pages provide their own mobile TOC and feedback actions. */}}
           {{ $tocDisplay := "d-flex" }}
-          {{ if eq .Params.layout "standard" }}{{ $tocDisplay = "d-none d-xl-flex" }}{{ end }}
+          {{ if eq .Layout "standard" }}{{ $tocDisplay = "d-none d-xl-flex" }}{{ end }}
           <aside class="{{ $tocDisplay }} flex-column col-xl-2 td-sidebar-toc d-print-none">
             {{ partial "toc.html" . }}
             {{ partial "taxonomy_terms_clouds.html" . }}
