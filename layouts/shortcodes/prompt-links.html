@@ -1,6 +1,12 @@
-{{- $path := .Get 0 -}}
+{{- $downloads := partialCached "open-science-resources.html" .Site -}}
+{{- $name := path.Base (.Get 0) -}}
+{{- $resource := index $downloads.files $name -}}
 {{- $label := .Get 1 | default "prompt" -}}
+{{- with $resource -}}
 <p>
-  <a class="btn btn-primary" href="{{ $path | relURL }}">Read the {{ $label }} (Markdown)</a>
-  <a class="btn btn-outline-primary" href="{{ $path | relURL }}" download>Download the {{ $label }} (Markdown)</a>
+  <a class="btn btn-primary" href="{{ .RelPermalink }}">Read the {{ $label }} (Markdown)</a>
+  <a class="btn btn-outline-primary" href="{{ .RelPermalink }}" download>Download the {{ $label }} (Markdown)</a>
 </p>
+{{- else -}}
+  {{- errorf "Unknown open science prompt: %s" $name -}}
+{{- end -}}

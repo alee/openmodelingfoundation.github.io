@@ -15,6 +15,11 @@ This repository includes an agent collaboration harness for AI-assisted work.
 
 For Hugo, Docsy, JavaScript, and other dependency updates, follow the [dependency upgrade runbook](docs/dependency-upgrades.md).
 
+## Standalone open science downloads
+
+See [the prompt publication guide](docs/open-science-prompts.md) for ownership,
+the pinned Skills dependency, local previews and update checks.
+
 ## Deployment
 
 The site is deployed to GitHub Pages via the workflow at `.github/workflows/gh-pages.yml`. Pushes to the `develop` branch trigger an automated build-and-deploy.
@@ -72,9 +77,14 @@ The shared build script used by CI workflows and `make render` is:
 .github/scripts/build-site.sh
 ```
 
-### Generated bibliography
+### Generated content
 
-The container workflows regenerate bibliography JSON in the active workspace
-before preview startup and production rendering. See [generated content](docs/generated-content.md)
-for preparation and validation. Starting Hugo directly bypasses this step; use
-the documented container commands for a complete site preview.
+The supported container workflows prepare the bibliography before starting
+Hugo. Prompt downloads are fetched, verified and published by Hugo itself.
+Awesome Modeling Practices refreshes once per build, with a visible warning
+and bibliography fallback when its upstream source is unavailable.
+
+See [generated content and freshness](docs/generated-content.md) for preparation
+and refresh policies. Run `make content-test` for the focused integration tests.
+Starting Hugo directly bypasses bibliography preparation; use the documented
+container commands for a complete site preview.

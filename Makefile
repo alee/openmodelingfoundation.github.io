@@ -6,7 +6,9 @@
 MAKEFILE_COMMANDS=Makefile $(wildcard *.mk)
 UID=$(shell id -u)
 GID=$(shell id -g)
-DOCKER_COMPOSE=docker compose
+PROMPTS_SOURCE ?=
+export PROMPTS_SOURCE
+DOCKER_COMPOSE=docker compose $(if $(PROMPTS_SOURCE),-f docker-compose.yml -f docker-compose.preview.yml,)
 HUGO_SERVICE=hugo
 HUGO_RUN_SH=$(DOCKER_COMPOSE) run --rm --no-deps --entrypoint sh
 HUGO_CACHE_CONTAINER_DIR ?= /src/.hugo_cache
@@ -107,7 +109,7 @@ deps-fonts :
 	$(HUGO_RUN_SH) $(HUGO_SERVICE) -c 'apk add --no-cache bash curl openssl su-exec && su-exec "$(UID):$(GID)" env HOME=/tmp npm_config_cache=/tmp/.npm bash .github/scripts/download-fonts.sh'
 
 .PHONY: content-test
-## content-test     : test bibliography preparation and remote README freshness.
+## content-test     : test Hugo prompts, bibliography preparation and README freshness.
 content-test:
 	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B -m unittest discover -s .github/scripts -p "test_*content*.py"'
 

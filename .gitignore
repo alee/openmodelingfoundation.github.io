@@ -55,3 +55,6 @@ tmp/checks/
 
 # Exported CI Docker layers
 .buildx-cache*/
+
+# Optional read-only local prompt asset mount
+assets/open-science-local/

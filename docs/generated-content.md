@@ -40,5 +40,12 @@ The timestamp does not claim when the upstream author changed the README.
 Live-preview rebuilds may retrieve again. This optional source does not block
 unrelated pages.
 
-Run `make content-test` for bibliography preparation and README freshness/fallback
-checks. Commit, push and deployment require the relevant authorization.
+## Open science downloads
+
+Prompts use Hugo retrieval with a full commit pin and required checksums;
+retrieval failure blocks the build. See [prompt publication](open-science-prompts.md)
+for source ownership and local drafts.
+
+Run `make content-test` for native Hugo publication, cache/fallback and clean or
+stale bibliography preparation tests. Commit, push and deployment still require
+the relevant authorization.

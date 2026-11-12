@@ -1,0 +1,56 @@
+{{- $pin := index hugo.Data "open-science-source" -}}
+{{- $local := eq (os.Getenv "HUGO_OPEN_SCIENCE_LOCAL") "1" -}}
+{{- $names := slice "open-science-agent.md" "open-science-audit-report.md" "open-science-tutor.md" "open-science-sandbox.md" -}}
+{{- $valid := true -}}
+{{- if or (ne $pin.repository "https://github.com/openmodelingfoundation/skills") (ne $pin.source_directory "prompts/open-science") -}}
+  {{- errorf "Unexpected open science source repository or directory" -}}
+  {{- $valid = false -}}
+{{- end -}}
+{{- if ne (len $pin.files) (len $names) -}}
+  {{- errorf "Open science pin must name exactly four Markdown files" -}}
+  {{- $valid = false -}}
+{{- end -}}
+{{- range $names -}}
+  {{- if not (findRE `^[0-9a-f]{64}$` (index $pin.files . | default "")) -}}
+    {{- errorf "Missing or invalid SHA-256 for %s" . -}}
+    {{- $valid = false -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (not $local) (not (findRE `^[0-9a-f]{40}$` ($pin.revision | default ""))) -}}
+  {{- errorf "Open science pin requires a full 40-character commit SHA" -}}
+  {{- $valid = false -}}
+{{- end -}}
+{{- $published := dict -}}
+{{- $hashes := dict -}}
+{{- $mode := "pinned" -}}
+{{- if $local -}}
+  {{- $mode = "local-preview" -}}
+{{- end -}}
+{{- if $valid -}}
+  {{- range $names -}}
+    {{- $name := . -}}
+    {{- $resource := false -}}
+    {{- if $local -}}
+      {{- $resource = resources.Get (printf "open-science-local/%s" $name) -}}
+      {{- if not $resource -}}{{- errorf "Local open science source missing: %s" $name -}}{{- end -}}
+    {{- else -}}
+      {{- $url := printf "https://raw.githubusercontent.com/openmodelingfoundation/skills/%s/%s/%s" $pin.revision $pin.source_directory $name -}}
+      {{- $resource = partial "open-science-fetch.html" (dict "url" $url "sha256" (index $pin.files $name)) -}}
+    {{- end -}}
+    {{- with $resource -}}
+      {{- if and $local (gt (len .Content) 131072) -}}{{- errorf "Open science source exceeds 128 KiB: %s" $name -}}{{- end -}}
+      {{- $hashes = merge $hashes (dict $name (crypto.SHA256 .Content)) -}}
+      {{- $copy := resources.Copy (printf "prompts/%s" $name) . -}}
+      {{- $copy.Publish -}}
+      {{- $published = merge $published (dict $name $copy) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $source := dict "repository" $pin.repository "source_directory" $pin.source_directory "mode" $mode "files" $hashes -}}
+{{- if not $local -}}
+  {{- $source = merge $source (dict "revision" $pin.revision) -}}
+  {{- with $pin.release -}}{{- $source = merge $source (dict "release" .) -}}{{- end -}}
+{{- end -}}
+{{- $metadata := resources.FromString "prompts/open-science-source.json" ($source | jsonify (dict "indent" "  ")) -}}
+{{- $metadata.Publish -}}
+{{- return (dict "source" $source "files" $published "metadata" $metadata) -}}

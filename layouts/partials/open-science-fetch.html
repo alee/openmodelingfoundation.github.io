@@ -1,0 +1,18 @@
+{{/* Required resource: errors and HTTP 404 both fail the build. */}}
+{{- $resource := false -}}
+{{- $result := try (resources.GetRemote .url (dict "timeout" "30s" "headers" (dict "Cache-Control" "no-cache"))) -}}
+{{- if $result.Err -}}
+  {{- errorf "Open science source retrieval failed: %s" $result.Err -}}
+{{- else if $result.Value -}}
+  {{- $candidate := $result.Value -}}
+  {{- if gt (len $candidate.Content) 131072 -}}
+    {{- errorf "Open science source exceeds 128 KiB: %s" .url -}}
+  {{- else if ne (crypto.SHA256 $candidate.Content) .sha256 -}}
+    {{- errorf "Open science source SHA-256 mismatch: %s" .url -}}
+  {{- else -}}
+    {{- $resource = $candidate -}}
+  {{- end -}}
+{{- else -}}
+  {{- errorf "Open science source not found: %s" .url -}}
+{{- end -}}
+{{- return $resource -}}

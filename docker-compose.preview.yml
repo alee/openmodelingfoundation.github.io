@@ -1,0 +1,12 @@
+# Opt-in local Skills drafts; never use this overlay for deployment.
+services:
+  hugo:
+    environment:
+      HUGO_OPEN_SCIENCE_LOCAL: "1"
+    volumes:
+      - type: bind
+        source: ${PROMPTS_SOURCE:?Set PROMPTS_SOURCE to a Skills checkout}/prompts/open-science
+        target: /src/assets/open-science-local
+        read_only: true
+        bind:
+          create_host_path: false

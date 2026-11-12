@@ -1,0 +1,13 @@
+{{- $downloads := partialCached "open-science-resources.html" .Site -}}
+{{- $source := $downloads.source -}}
+<p>
+{{ if eq $source.mode "local-preview" }}
+Local source preview; these downloads are not identified by a published Skills commit.
+{{ else }}
+{{ with $source.release }}
+Skills release: <a href="{{ $source.repository }}/releases/tag/{{ . }}">{{ . }}</a>.
+{{ end }}
+Source revision: <a href="{{ $source.repository }}/tree/{{ $source.revision }}/{{ $source.source_directory }}"><code>{{ $source.revision }}</code></a>.
+{{ end }}
+<a href="{{ $downloads.metadata.RelPermalink }}">Download source revision and file checksums</a>.
+</p>
