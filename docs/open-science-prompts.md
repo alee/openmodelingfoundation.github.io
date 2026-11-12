@@ -8,8 +8,8 @@ remains the Open Science Assistant resource page.
 ## Published sources
 
 `data/open-science-source.json` pins the full Skills commit and four SHA-256
-checksums. It currently selects [v2026.11](https://github.com/openmodelingfoundation/skills/releases/tag/v2026.11),
-resolved to `6d979bae1c590eeaea380f1a2780daab5a8031e6`. The release label is
+checksums. It currently selects [v2026.11.1](https://github.com/openmodelingfoundation/skills/releases/tag/v2026.11.1),
+resolved to `9181065683a5013a9ed38533ab1787c6c3879651`. The release label is
 informational; retrieval always uses that commit, never a moving branch or tag.
 
 The `open-science-resources.html` partial reads the manifest through Hugo data,

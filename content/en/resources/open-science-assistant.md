@@ -5,7 +5,7 @@ description: "Experimental guidance for auditing research materials, learning op
 weight: 40
 ---
 
-**Experimental guidance · Version 0.10 draft**
+**Experimental guidance · Packaging prompt version 0.11 draft**
 
 The Open Science Research Packaging Assistant helps researchers use an agent to
 make research materials understandable, inspectable, reusable, and appropriately
@@ -51,10 +51,10 @@ If you cannot retrieve the guidance, tell me before proceeding.
 
 ## Audit report template
 
-The report template gives audits a consistent structure: a purpose-specific
-verdict, an inventory with permanent code and data links, an evidence-based
-assessment, prioritized actions, verification results, questions for authors
-or custodians, and a worked example when requested and justified.
+The report template (version 0.11 draft) gives audits a consistent structure:
+a purpose-specific verdict, an inventory with permanent code and data links,
+an evidence-based assessment, prioritized actions, verification results,
+questions for authors or custodians, and a worked example when requested and justified.
 
 {{< prompt-links "prompts/open-science-audit-report.md" "audit report template" >}}
 
@@ -65,7 +65,7 @@ experimental reporting guidance, not a certification or scoring standard.
 
 ## Run a model in a sandbox
 
-The **Computational Model Sandbox Runner (version 0.1 draft)** accepts a model
+The **Computational Model Sandbox Runner (version 0.2 draft)** accepts a model
 URL, permanent identifier or local path and treats the model, its installers
 and its dependencies as untrusted code. It inspects the materials, identifies
 the required inputs and runtime, and attempts a documented example within an
@@ -104,7 +104,7 @@ tell me before executing the model.
 
 ## Learn while you work
 
-The **Open Science Practice Tutor (version 0.10 draft)** helps you understand
+The **Open Science Practice Tutor (version 0.12 draft)** helps you understand
 open science principles as you apply them to your project. Choose a learning
 goal and work through examples with questions, hints, demonstrations, or shared
 work. The tutor pauses for your attempts and agrees on changes before editing
@@ -155,6 +155,6 @@ projects, consult the OMF standards in development for
 [OMF Agent Skills](https://github.com/openmodelingfoundation/skills) provide
 specialized workflows; OMFA is the modeling methodology assistant.
 
-[Send feedback on version 0.10 draft](https://github.com/openmodelingfoundation/openmodelingfoundation.github.io/issues/new?projects=openmodelingfoundation/openmodelingfoundation.github.io/6&template=site-wide.md).
+[Send website feedback](https://github.com/openmodelingfoundation/openmodelingfoundation.github.io/issues/new?projects=openmodelingfoundation/openmodelingfoundation.github.io/6&template=site-wide.md).
 Include which prompt you used, its version, and a non-sensitive description of
 what helped or needs improvement.

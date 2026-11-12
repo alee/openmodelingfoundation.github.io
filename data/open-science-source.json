@@ -1,12 +1,12 @@
 {
   "repository": "https://github.com/openmodelingfoundation/skills",
-  "revision": "6d979bae1c590eeaea380f1a2780daab5a8031e6",
+  "revision": "9181065683a5013a9ed38533ab1787c6c3879651",
   "source_directory": "prompts/open-science",
   "files": {
-    "open-science-agent.md": "061b8fd80f2bd58617a31e3b6c998fa9504f6ac0446b64f2e6b59c6ba7abda2c",
-    "open-science-audit-report.md": "bdc51c3d75cb6bebafebe0ff99f0354f24f5401d13957f40cf2923e39d5fa8ed",
-    "open-science-sandbox.md": "8ed0f841e2789aed25c1463cedeef0426bf9aaa58054210d395246722ec754b8",
-    "open-science-tutor.md": "f83f1120311a61b5a653f42aa7f36c1e089fc6979dfb7ec736a1089544057a42"
+    "open-science-agent.md": "9c3dce6cc1d374b974543f9cdfa5f0ed2ff97b5d40d26d35f47dabe7f1ce794d",
+    "open-science-audit-report.md": "26cf0e63e6b20c73a5518f38363c8d919366b44d8fbe0f9686f01fca8abc2235",
+    "open-science-sandbox.md": "560f2061540c34176fd36f5486031ba230205c95c9c773fb3e69f4fc353f0983",
+    "open-science-tutor.md": "7375b1ce0323dba2ce644a95b96491548fe6e6abe9ebda7c91eb499b3785438e"
   },
-  "release": "v2026.11"
+  "release": "v2026.11.1"
 }
