@@ -3,7 +3,7 @@
   {{ $rawURL := "https://raw.githubusercontent.com/openmodelingfoundation/awesome-modeling-practices/main/README.md" }}
   {{ $blobRoot := "https://github.com/openmodelingfoundation/awesome-modeling-practices/blob/main/" }}
   {{ $rawRoot := "https://raw.githubusercontent.com/openmodelingfoundation/awesome-modeling-practices/main/" }}
-  {{ $opts := dict "headers" (dict "User-Agent" "OMF-Hugo") }}
+  {{ $opts := dict "timeout" "30s" "headers" (dict "User-Agent" "OMF-Hugo" "Cache-Control" "no-cache") }}
   {{ $buildTimestampRaw := getenv "BUILD_TIMESTAMP_UTC" }}
   {{ $buildTimestamp := now.UTC }}
   {{ with $buildTimestampRaw }}
@@ -11,6 +11,15 @@
   {{ end }}
   {{ $pubs := partial "publications-list.html" . }}
   {{ $pubsFallback := printf "<section class=\"awesome-publications-fallback\"><h2>Papers</h2>%s</section>" $pubs | safeHTML }}
+
+  {{ $remote := partialCached "render-remote-readme.html" (dict
+    "sourceRepo" $sourceRepo
+    "rawURL" $rawURL
+    "blobRoot" $blobRoot
+    "rawRoot" $rawRoot
+    "opts" $opts
+    "pubs" $pubs
+  ) $rawURL }}
 
   <div class="td-content awesome-list-content">
     <h1>{{ .Title }}</h1>
@@ -23,19 +32,16 @@
           This page is generated from
           <a href="{{ $sourceRepo }}" target="_blank" rel="noopener">openmodelingfoundation/awesome-modeling-practices</a>
           <br>
-          <strong>Last updated:</strong> {{ $buildTimestamp.Format "January 2, 2006 15:04 MST" }}
+          {{ if eq $remote.warning "" }}
+            <strong>Source fetched for this build:</strong> {{ $buildTimestamp.Format "January 2, 2006 15:04 MST" }}
+          {{ else }}
+            <strong>Source unavailable for this build.</strong>
+            Page built: {{ $buildTimestamp.Format "January 2, 2006 15:04 MST" }}
+          {{ end }}
         </p>
       </div>
     </div>
 
-    {{ $remote := partial "render-remote-readme.html" (dict
-      "sourceRepo" $sourceRepo
-      "rawURL" $rawURL
-      "blobRoot" $blobRoot
-      "rawRoot" $rawRoot
-      "opts" $opts
-      "pubs" $pubs
-    )}}
     {{ $warning := $remote.warning }}
     {{ $rendered := $remote.rendered }}
     {{ if ne $warning "" }}

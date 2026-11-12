@@ -46,6 +46,12 @@ module:
     - source: "assets/bibliographies"
       target: "static/bibliographies"
 
+# Remote content is fetched afresh for each build; partialCached deduplicates
+# prompt publication and the Awesome README within that build.
+caches:
+  getresource:
+    maxAge: 0
+
 # Configure how URLs look like per section.
 permalinks:
   blog: "/:section/:year/:month/:day/:slug/"

@@ -107,9 +107,9 @@ deps-fonts :
 	$(HUGO_RUN_SH) $(HUGO_SERVICE) -c 'apk add --no-cache bash curl openssl su-exec && su-exec "$(UID):$(GID)" env HOME=/tmp npm_config_cache=/tmp/.npm bash .github/scripts/download-fonts.sh'
 
 .PHONY: content-test
-## content-test     : test bibliography preparation after workspace mounts.
+## content-test     : test bibliography preparation and remote README freshness.
 content-test:
-	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B .github/scripts/test_content_preparation.py'
+	$(HUGO_RUN_SH) $(HUGO_USER_ENV) $(HUGO_SERVICE) -c 'python3 -B -m unittest discover -s .github/scripts -p "test_*content*.py"'
 
 ## shell            : open a hugo shell
 shell : build

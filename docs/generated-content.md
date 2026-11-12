@@ -24,5 +24,21 @@ not establish that every source entry parsed. Post-render checks verify that
 all generated records are displayed and the downloadable BibTeX exactly matches
 the maintained source.
 
-Run `make content-test` to test clean/stale workspace preparation and failed
-preview startup. Commit, push and deployment require the relevant authorization.
+## Awesome Modeling Practices
+
+Hugo retrieves upstream `main/README.md` for each build. A cached partial shares
+that result within the build; `caches.getresource.maxAge: 0` prevents older
+responses being reused across builds. A no-cache header requests upstream
+revalidation. Hugo may retry transient failures; this is one logical retrieval
+per build, not a promise of one HTTP attempt.
+
+Failed retrieval or invalid publication markers produce a visible warning and
+the locally generated bibliography fallback. Older README content is not
+silently substituted. Successful pages show "Source fetched for this build";
+fallback pages show the page build time without claiming source freshness.
+The timestamp does not claim when the upstream author changed the README.
+Live-preview rebuilds may retrieve again. This optional source does not block
+unrelated pages.
+
+Run `make content-test` for bibliography preparation and README freshness/fallback
+checks. Commit, push and deployment require the relevant authorization.
