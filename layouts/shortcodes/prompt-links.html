@@ -1,0 +1,6 @@
+{{- $path := .Get 0 -}}
+{{- $label := .Get 1 | default "prompt" -}}
+<p>
+  <a class="btn btn-primary" href="{{ $path | relURL }}">Read the {{ $label }} (Markdown)</a>
+  <a class="btn btn-outline-primary" href="{{ $path | relURL }}" download>Download the {{ $label }} (Markdown)</a>
+</p>

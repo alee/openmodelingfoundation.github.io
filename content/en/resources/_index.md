@@ -47,4 +47,13 @@ Explore Open Modeling Foundation Working Group outputs and supporting materials.
       </div>
     </div>
   </div>
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h4 card-title">Open Science Assistant</h2>
+        <p class="card-text">Experimental guidance for learning open science practices and documenting, packaging, and verifying research materials with an agent.</p>
+        <a class="btn btn-outline-primary" href="{{< relref "open-science-assistant" >}}">Use the Open Science Assistant</a>
+      </div>
+    </div>
+  </div>
 </div>
