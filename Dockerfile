@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-ARG HUGO_VERSION=v0.169.0
+ARG HUGO_VERSION=v0.170.1
 ARG UV_VERSION=0.13.7
 
 # Shared tool sources.
@@ -10,7 +10,7 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 FROM wjdp/htmltest:v0.13.0@sha256:59f55e59702972fb0edebc26638d759b483efde55109ddd704a034ee07cb2056 AS htmltest
 
 # Local development and validation environment.
-FROM ghcr.io/gohugoio/hugo:${HUGO_VERSION}
+FROM ghcr.io/gohugoio/hugo:${HUGO_VERSION}@sha256:4cc9f383086c0fba180efcf7132cf2f025969c462fedf5fcd2bf921915416797
 COPY --from=uv /uv /uvx /bin/
 
 COPY --from=htmltest /bin/htmltest /usr/local/bin/htmltest

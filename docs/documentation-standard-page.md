@@ -50,7 +50,7 @@ The preserved review context requests feedback by November 30, 2026, offers emai
 2. Freeze the reviewed text in `index.md` with `type: docs`, `layout: standard`, the edition metadata above, and no `edition_page` reference to another bundle.
 3. Retain the exact release files and their provenance. Record the announcement date separately from the retrieval/capture date. Unknown identifiers remain unknown.
 4. Create a schema-version-1 manifest listing each file's relative path, byte size, and SHA-256 digest. Calculate hashes in the Hugo container. The manifest must cover the edition text and every download; do not include its own hash.
-5. Run `make standards-check`, then `make render-site-isolated`. Inspect the history, edition page, original-file downloads, provenance link, and return link at desktop and mobile widths.
+5. Run `make standards-check`, then `make render-site-isolated` for automated validation. Use `make serve` to inspect the history, edition page, original-file downloads, provenance link, and return link at desktop and mobile widths. Successful isolated output is discarded; use a separate checkout with `make render` when you need a production export.
 6. Update the current page's text and edition pointer intentionally. The old bundle stays unchanged. Announce or update GitHub Discussion links only when requested and after the new webpage is published.
 
 Both public-review releases and adopted releases can use this structure; ordinary working edits need not become editions. The working group's RFC page links to the current documentation proposal and its review discussion.

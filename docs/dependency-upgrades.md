@@ -2,11 +2,17 @@
 
 Use this procedure for a coordinated Hugo, Docsy, and JavaScript upgrade. For a smaller update, perform the relevant steps in the same order. Run build and dependency commands through the Make targets: they execute inside the Docker Compose `hugo` service. Do not run a host-installed Hugo, Go, npm, or Python against this checkout.
 
+Select the latest stable mutually compatible Hugo, Docsy, Sass and build-tool
+versions within the requested scope. Keep dependencies already at the selected
+version unchanged; document any compatibility constraint that prevents adopting
+a newer stable release. Resolve candidates first, then pin the validated set.
+
 ## Where versions come from
 
 | Dependency | Authoritative source | Generated or installed result |
 | --- | --- | --- |
-| Hugo | `.env` (`HUGO_VERSION`) for Compose; Dockerfile `ARG HUGO_VERSION` for its standalone default | Docker base image |
+| Hugo | `.env` (`HUGO_VERSION`), Dockerfile default `ARG HUGO_VERSION` and matching image digest | Docker base image |
+| Supported Hugo baseline | `hugo.yaml` (`module.hugoVersion.min`) | Project support policy; distinct from Docsy's upstream minimum |
 | Docsy | `go.mod`, imported as `github.com/docsy/docsy/theme` in `hugo.yaml` | `go.sum`; Hugo module cache |
 | Site JavaScript and CSS tools | Root `package.json` | Root `package-lock.json`; `/src/node_modules` in the image |
 | JavaScript requested by Hugo modules | Module manifests, consolidated by `hugo mod npm pack` | `packages/hugoautogen/{package.json,hugo_packagemeta.json}` and root `package-lock.json` |
@@ -22,13 +28,22 @@ The root package currently pins Bootstrap and Font Awesome directly. Those decla
 ## Before editing
 
 1. Start from a clean branch or record any existing local changes. Read the [Docsy update guide](https://www.docsy.dev/docs/update/) and every release note between the installed and target Docsy versions. Check Hugo, Node, and Dart Sass requirements, changed templates, icons, and other migration actions.
-2. Check whether `make serve` or another Hugo container is running. Use `make render-site-isolated` for validation if it is; `make render` deletes shared build state.
+2. Check whether `make serve` or another Hugo container is running. Use `make render-site-isolated` for validation if it is; `make render` refuses to delete shared build state while this Compose project's preview is running.
 3. Run `make build` **before changing package manifests**. This produces a usable image from the current, synchronized lockfile. The dependency targets below deliberately use this existing image and do not rebuild it. A fresh image build can fail at `npm ci` until the new lockfile exists.
 4. Record a baseline with `make render` (or `make render-site-isolated`), including page and static-file counts and a few representative pages.
 
 ## Update Hugo and Docsy
 
-1. If upgrading Hugo, set `HUGO_VERSION` in `.env` and the Dockerfile default `ARG HUGO_VERSION` to the same tag. Run `make build` **now, before editing `package.json`**. Check that the target Hugo image is available and meets Docsy's requirements. This gives subsequent Make targets the new Hugo executable.
+1. If upgrading Hugo, set `HUGO_VERSION` in `.env` and the Dockerfile default
+   `ARG HUGO_VERSION` to the same exact release tag. Resolve the corresponding
+   official image digest and update the Dockerfile `FROM` pin together with the
+   version. Hugo 0.170+ uses a unified binary; remove the obsolete project
+   `module.hugoVersion.extended` setting when crossing that boundary. Set the
+   project `module.hugoVersion.min` to the supported toolchain baseline validated
+   for this site; Docsy may declare a lower upstream compatibility floor.
+   Run `make build` **before editing `package.json`** and confirm the actual
+   container Hugo version meets Docsy's requirements. This gives subsequent
+   Make targets the selected executable.
 2. Update Docsy's Hugo module with `make deps-docsy DOCSY_VERSION=vX.Y.Z`. Use the exact target version rather than an unrestricted `-u`. This updates `go.mod` and `go.sum` and tidies unused module requirements. Set `DOCSY_VERSION` in `.env` to the same version; it is a tracking value, not the Go module pin. Check that `hugo.yaml` imports `github.com/docsy/docsy/theme` and apply any release-specific config or override migrations. Docsy 0.18 moved from `github.com/google/docsy/theme`; change the import before updating and tidying the module.
 3. Review changes to `layouts/`, `assets/scss/`, shortcodes, icons, and the Sass toolchain against the Docsy release notes. In particular, a successful render does not prove that an overridden selector or icon still works.
 
@@ -55,7 +70,14 @@ Run `make deps-test content-test standards-check` before rendering. The dependen
 tests verify lockfile updates with a read-only installed dependency tree and
 preservation of the existing lockfile when resolution fails.
 
-1. Run `make render`, or `make render-site-isolated` if a Hugo server is running. Inspect `public/` directly: check pages, the compiled CSS and JavaScript, `/webfonts/`, self-hosted fonts, and copied static assets. Hugo can exit successfully while a mount omission leaves assets missing.
+1. With no active preview, run `make render` and inspect fresh `public/` output:
+   check pages, compiled CSS/JavaScript, `/webfonts/`, self-hosted fonts and copied
+   static assets. With an active preview, use `make render-site-isolated` for
+   automated validation and `make serve` for visual inspection. Successful isolated
+   output is discarded; logs remain in `tmp/checks/render/`, with rendered files
+   retained on failure when available. To inspect an isolated production export,
+   run `make render` in a separate checkout. A successful Hugo exit alone does not
+   prove that a module mount preserved every asset.
 2. Open the home page, a standards page, and a page using a custom shortcode. Check navigation, search, icons, breadcrumbs, responsive layout, and browser console/network errors. Repeat release-specific Docsy checks. For a Pages base-path change, also test the actual deployment base URL.
 3. If bibliography tooling changed, run `make publications-json` and compare the number of generated records with the BibTeX source; malformed entries can be silently dropped. `data/publications.json` and `public/` are generated outputs and must not be committed.
 4. Check `git diff --check`, `git diff --cached --check`, `git status --short`, and the diff for unexpected generated files or secrets. Commit the authoritative manifests, generated lockfiles/workspace metadata, documentation or template migrations, and any deliberately regenerated font assets. CI's Pages and htmltest workflows provide the final container-build checks.

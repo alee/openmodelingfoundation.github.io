@@ -71,6 +71,11 @@ Run the local production-style render path (equivalent to the CI shared build en
 % make render
 ```
 
+If a preview is running, use `make render-site-isolated` for production-style
+validation. Its successful output is disposable; logs remain in `tmp/checks/`.
+`make render` builds the image first and refuses to clear an active preview's
+shared output.
+
 Open a hugo shell in the docker container
 
 ```

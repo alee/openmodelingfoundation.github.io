@@ -26,8 +26,7 @@ disableKinds:
 module:
   proxy: "direct"
   hugoVersion:
-    extended: true
-    min: "0.160.1"
+    min: "0.170.1"
   imports:
     - path: "github.com/docsy/docsy/theme"
       disable: false

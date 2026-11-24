@@ -47,9 +47,11 @@ serve : build
 	@$(DOCKER_COMPOSE) up -d --force-recreate --renew-anon-volumes $(HUGO_SERVICE)
 
 ## render           : run the production-style site render locally.
-render :
+render : build
+	@running=$$($(DOCKER_COMPOSE) ps --status running -q $(HUGO_SERVICE)) || exit $$?; \
+		test -z "$$running" || { echo 'Use make render-site-isolated while the preview is running.' >&2; exit 1; }
 	$(HUGO_RUN_SH) $(HUGO_SERVICE) -c 'rm -f /src/.hugo_build.lock && rm -rf /src/public /src/resources/_gen'
-	$(MAKE) render-site
+	$(MAKE) -o build render-site
 
 ## render-site      : run the shared production build script in the container.
 render-site : build
